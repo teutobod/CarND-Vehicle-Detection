@@ -20,10 +20,6 @@ def data_look(car_list, notcar_list):
     # Return data_dict
     return data_dict
 
-def split_list(l, s):
-    x = int(s * len(l))
-    return l[:x], l[x:]
-
 
 def get_data():
     cars = []
@@ -36,15 +32,13 @@ def get_data():
         else:
             cars.append(image)
 
-    # shuffle data and get same number of samples from each class
-    random.shuffle(cars)
-    random.shuffle(notcars)
+    # Get same number of samples from each class
     min_len = min(len(cars), len(notcars))
 
     cars = np.asarray(cars[:min_len])
     notcars = np.asarray(notcars[:min_len])
-
     samples = np.concatenate((cars, notcars), axis=0)
+
     random.shuffle(samples)
     # Create labels 1 for cars 0 for notcars
     labels = np.ones_like(samples, dtype=np.int16)
