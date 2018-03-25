@@ -60,7 +60,7 @@ def find_cars_window(img, clf, scaler, params, y_start_stop=[360, 700], xy_windo
             car_windows.append(window)
     return car_windows
 
-def find_cars(img, clf, scaler, params, y_start_stop=[350, 656], window=64, cells_per_step=1, scale=1.5):
+def find_cars(img, clf, scaler, params, y_start_stop=[350, 650], window=64, cells_per_step=1, scale=1.5):
     cspace = params.cspace
     size = params.size
     hist_bins = params.hist_bins

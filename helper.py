@@ -4,38 +4,11 @@ from sklearn.externals import joblib
 import numpy as np
 import cv2
 
-def plot_random_example(X_train):
-    # Plot an example of raw and scaled features
-    x_ind = np.random.randint(0, len(X_train))
-    fig = plt.figure(figsize=(12, 4))
-    plt.subplot(131)
-    plt.imshow(mpimg.imread(X_train[x_ind]))
-    plt.title('Original Image')
-
-    plt.subplot(132)
-    plt.plot(X[x_ind])
-    plt.title('Raw Features')
-
-    # plt.subplot(133)
-    # plt.plot(scaled_X[x_ind])
-    # plt.title('Normalized Features')
-    # fig.tight_layout()
-    # plt.show()
-
-def plot_random_results(X, y):
-    fig = plt.figure(figsize=(12, 4))
-
-    for i in range(9):
-        plt.subplot(330 + i + 1)
-
-        x_i = np.random.randint(0, len(X))
-        plt.imshow(mpimg.imread(X[x_i]))
-        plt.title('Sample image with result {}'.format(y[x_i]))
-
-    fig.tight_layout()
+def plot_single_image(image, figsize=(15, 13)):
+    plt.imshow(image)
     plt.show()
 
-def plot_images(images, cols=2, rows=6, figsize=(15, 13)):
+def plot_images(images, cols=3, rows=6, figsize=(15, 13)):
     length = len(images)
     fig, axes = plt.subplots(rows, cols, figsize=figsize)
     indexes = range(cols * rows)

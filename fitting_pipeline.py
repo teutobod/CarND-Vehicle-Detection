@@ -1,10 +1,9 @@
-import glob
 from datetime import datetime
-import os
+import glob
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
-from helper import save_model, read_image
+from helper import save_model, read_image, plot_images
 from features import *
 
 def read_samples(dir, pattern):
@@ -67,12 +66,10 @@ def fit_model(pos_samples, neg_samples, svc, scaler, params):
 
     return svc, X_scaler, accuracy, (extraction_time, fit_time)
 
-
 vehicles = read_samples('./data/vehicles', '*.png')
 no_vehicles = read_samples('./data/non-vehicles', '*.png')
 
-params = FeatureParameter()
-clf_model, scaler, model_accuracy, times = fit_model(vehicles, no_vehicles, LinearSVC(), StandardScaler(), params)
+clf_model, scaler, model_accuracy, times = fit_model(vehicles, no_vehicles, LinearSVC(), StandardScaler(), FeatureParameter())
 
 print('Feature extraction time: {} seconds'.format(times[0]))
 print('Fitting time: {} seconds'.format(times[1]))

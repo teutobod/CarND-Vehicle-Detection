@@ -13,17 +13,20 @@ box_imgs = []
 for img in test_images:
     car_boxes = find_cars(img, clf, scaler, parameter)
 
-    box_imgs.append(draw_cars(img, car_boxes))
+    car_boxes_img = draw_cars(img, car_boxes)
+    box_imgs.append(car_boxes_img)
 
     from heatmap import HeatMap
 
     heatmap = HeatMap(threshold=2)
     heatmap.add_heat(car_boxes)
     heatmap.apply_threshold()
+    heatmap_img = heatmap.get_headmap()
 
     from scipy.ndimage.measurements import label
-    labels = label(heatmap.get_headmap())
+    labels = label(heatmap_img)
 
+    box_imgs.append(heatmap_img)
     label_box_img = draw_labeled_bboxes(np.copy(img), labels)
     box_imgs.append(label_box_img)
 
