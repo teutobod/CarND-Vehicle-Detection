@@ -50,7 +50,7 @@ Here are two plots that show an example of the HOG feature extraction with the p
 ![alt text][image2]
 
 
-#### 3. Trained the Classifier
+#### 3. Training the Classifier
 
 I trained a linear SVM using the larger project dataset for [vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and [non-vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip). 
 The code fot the data collection, feature extraction and classifier training is in file [`fitting_pipeline.py`](./fitting_pipeline.py).
@@ -128,9 +128,11 @@ The next image shows the results of this step with the final car detection on th
 As it can be seen by my [project video result](./videos/project_video_ouput.mp4) the pipeline still produces
 some false positives especially in scenes with high image contrast (e.g. transition into shadow).
 
-The false positives rate could be improved by filtering detections of each frames over time (e.g. using a kalman filter).
-Further fine tuning the extracted features, e.g. combining different color spaces and thresholds like ist was done in the advanced lane finding project,
-might also improve the overall detection performance.
+The false positives rate could be improved by filtering detections of each frames over time. This could be implemented
+by a moving average on the heat map or by using or more advanced approach like kalman filter.
+
+Further fine tuning the extracted features, e.g. combining different color spaces and thresholds like it was done in the advanced lane finding project,
+
 
 Another drawback of the current pipeline is that it migth detect vehicles on the oncoming lanes.
 To prevent this I suggest to apply a trapezial filter mask on the image to search for vehicle in right lanes only.
