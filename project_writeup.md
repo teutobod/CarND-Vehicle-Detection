@@ -1,9 +1,4 @@
-## Writeup Template
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
-**Vehicle Detection Project**
+# Vehicle Detection Project
 
 The goals / steps of this project are the following:
 
@@ -37,8 +32,8 @@ and then applies the `bin_spatial()`, `color_hist()` and `get_hog_features()` fu
 ### 2. Histogram of Oriented Gradients (HOG)
 
 
-For the HOG feature extraction I reused the function [`get_hog_features()`](./features.py#L35) from the classroom module and explored different color spaces 
-and different parameters. [`get_hog_features()`](./features.py#L35) applies the `skimage.hog()` function to each color channel of the given image and concatenates the 
+For the HOG feature extraction I reused the function [`get_hog_features()`](./features.py#L35) from the classroom module and explored different color spaces
+and different parameters. [`get_hog_features()`](./features.py#L35) applies the `skimage.hog()` function to each color channel of the given image and concatenates the
 resulting features to a single vector.
 
 Finally I decided to use the following HOG parameters: `color_space = 'YCrCb'`, `hog_channel = 'ALL'`, `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
@@ -52,13 +47,13 @@ Here are two plots that show an example of the HOG feature extraction with the p
 
 #### 3. Training the Classifier
 
-I trained a linear SVM using the larger project dataset for [vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and [non-vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip). 
+I trained a linear SVM using the larger project dataset for [vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip) and [non-vehicles](https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip).
 The code fot the data collection, feature extraction and classifier training is in file [`fitting_pipeline.py`](./fitting_pipeline.py).
 
 After reading in all data samples ([line 69-70](./fitting_pipeline.py#L69-L70)) each sample set (vehicles and non-vehicles) is passed to function called [`fit_model()`](./fitting_pipeline.py#L32).
 First the function  does the feature extraction for all data samples as described in the section above ([line 37-38](./fitting_pipeline.py#L37-L38)).
 
-Because the data comes without any labeling the labels are the created in [lines 45-47](./fitting_pipeline.py#L45-L47). 
+Because the data comes without any labeling the labels are the created in [lines 45-47](./fitting_pipeline.py#L45-L47).
 
 Before the fitting the SVM the data was split into a training (80%) and a testing (20%) subset and scaled using a StandardScaler ([lines 50-56](./fitting_pipeline.py#L50-L56))
 
@@ -83,7 +78,7 @@ The function first computes the HOG features for the entire search area of the i
 For each window the features are extracted and passed to the classifiers prediction method ([lines 107-125](./find_cars.py#L107-L125)). Windows with positive predictions are stored in a list.
 
 After some experimenting I found the follwing parameters with gave me the best detection result:
- 
+
 |Parameter|Value|
 |:--------|----:|
 |Search area in y|350px - 650px|
@@ -111,7 +106,7 @@ Here's a [link](./videos/project_video_ouput.mp4) to my project video result.
 
 
 #### 2. Final Pipeline
-To combine the boxes found by the Sub-sampling Window Search and eliminate some false positives, a heat map was implemented with a threshold and 
+To combine the boxes found by the Sub-sampling Window Search and eliminate some false positives, a heat map was implemented with a threshold and
 the function `label()` from `scipy.ndimage.measurements` was used to to identify individual blobs in the heatmap. I then assumed each blob corresponded to a vehicle.
 I constructed bounding boxes to cover the area of each blob detected.
 
