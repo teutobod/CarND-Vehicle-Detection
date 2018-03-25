@@ -1,119 +1,23 @@
-import numpy as np
-import cv2
 import glob
 from datetime import datetime
 import os
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
-from helper import save_model
-from feature import *
+from helper import save_model, read_image
+from features import *
 
-def readImages(dir, pattern):
-    """
-    Returns an image list with the image contained on the directory `dir` matching the `pattern`.
-    """
-    images = []
-    for dirpath, dirnames, filenames in os.walk(dir):
-        for dirname in dirnames:
-            images.append(glob.glob(dir + '/' + dirname + '/' + pattern))
-    flatten = [item for sublist in images for item in sublist]
-    return list(map(lambda img: cv2.cvtColor(cv2.imread(img), cv2.COLOR_BGR2RGB), flatten))
+def read_samples(dir, pattern):
+    # images = []
+    # for dirpath, dirnames, filenames in os.walk(dir):
+    #     for dirname in dirnames:
+    #         images.append(glob.glob(dir + '/' + dirname + '/' + pattern))
+    # flatten = [item for sublist in images for item in sublist]
+    # ig = list(map(lambda img: cv2.cvtColor(cv2.imread(img), cv2.COLOR_BGR2RGB), flatten))
 
-# def bin_spatial(img, size=(32, 32)):
-#     # Use cv2.resize().ravel() to create the feature vector
-#     features = cv2.resize(img, size).ravel()
-#     # Return the feature vector
-#     return features
-
-
-# def color_hist(img, nbins=32, bins_range=(0, 256)):
-#     # Compute the histogram of the color channels separately
-#     channel1_hist = np.histogram(img[:, :, 0], bins=nbins, range=bins_range)
-#     channel2_hist = np.histogram(img[:, :, 1], bins=nbins, range=bins_range)
-#     channel3_hist = np.histogram(img[:, :, 2], bins=nbins, range=bins_range)
-#     # Concatenate the histograms into a single feature vector
-#     hist_features = np.concatenate((channel1_hist[0], channel2_hist[0], channel3_hist[0]))
-#     # Return the individual histograms, bin_centers and feature vector
-#     return hist_features
-
-
-# from skimage.feature import hog
-# def get_hog_features(img, orient, pix_per_cell, cell_per_block,
-#                      vis=False, feature_vec=True):
-#     # Call with two outputs if vis==True
-#     if vis == True:
-#         features, hog_image = hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
-#                                   cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=True,
-#                                   visualise=vis, feature_vector=feature_vec)
-#         return features, hog_image
-#     # Otherwise call with one output
-#     else:
-#         features = hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
-#                        cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=True,
-#                        visualise=vis, feature_vector=feature_vec)
-#         return features
-
-
-# Value object to hold all feature extraction parameters.
-# class FeatureParameter():
-#     def __init__(self):
-#         self.cspace = 'YCrCb'
-#         self.size = (16, 16)
-#         self.hist_bins = 32
-#         self.hist_range = (0, 256)
-#         self.orient = 8
-#         self.pix_per_cell = 8
-#         self.cell_per_block = 2
-#         self.hog_channel = 'ALL'
-
-
-# def extract_features(image, params):
-#     # Parameters extraction
-#     # HOG parameters
-#     cspace = params.cspace
-#     orient = params.orient
-#     pix_per_cell = params.pix_per_cell
-#     cell_per_block = params.cell_per_block
-#     hog_channel = params.hog_channel
-#     # Spatial parameters
-#     size = params.size
-#     # Histogram parameters
-#     hist_bins = params.hist_bins
-#     hist_range = params.hist_range
-#
-#     # apply color conversion if other than 'RGB'
-#     if cspace != 'RGB':
-#         if cspace == 'HSV':
-#             feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-#         elif cspace == 'LUV':
-#             feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2LUV)
-#         elif cspace == 'HLS':
-#             feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-#         elif cspace == 'YUV':
-#             feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
-#         elif cspace == 'YCrCb':
-#             feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
-#     else:
-#         feature_image = np.copy(image)
-#
-#     # Call get_hog_features() with vis=False, feature_vec=True
-#     if hog_channel == 'ALL':
-#         hog_features = []
-#         for channel in range(feature_image.shape[2]):
-#             hog_features.append(get_hog_features(feature_image[:, :, channel],
-#                                                  orient, pix_per_cell, cell_per_block,
-#                                                  vis=False, feature_vec=True))
-#         hog_features = np.ravel(hog_features)
-#     else:
-#         hog_features = get_hog_features(feature_image[:, :, hog_channel], orient,
-#                                         pix_per_cell, cell_per_block, vis=False, feature_vec=True)
-#
-#     # Apply bin_spatial() to get spatial color features
-#     spatial_features = bin_spatial(feature_image, size)
-#
-#     # Apply color_hist()
-#     hist_features = color_hist(feature_image, nbins=hist_bins, bins_range=hist_range)
-#
-#     return np.concatenate((spatial_features, hist_features, hog_features))
+    image_files = glob.glob(dir + '/*/' + pattern, recursive=True)
+    images = [read_image(i) for i in image_files]
+    return images
 
 def get_data():
     cars = []
@@ -127,24 +31,24 @@ def get_data():
             cars.append(image)
     return cars, notcars
 
+def fit_model(pos_samples, neg_samples, svc, scaler, params):
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-
-
-def fitModel(positive, negative, svc, scaler, params):
-
-    positive_features = list(map(lambda img: extract_features(img, params), positive))
-    negatice_features = list(map(lambda img: extract_features(img, params), negative))
+    # Extracting featured from samples
+    t1 = datetime.now()
+    pos_features = list(map(lambda img: extract_features(img, params), pos_samples))
+    neg_features = list(map(lambda img: extract_features(img, params), neg_samples))
+    t2 = datetime.now()
+    extraction_time = (t2 - t1).seconds
 
     # Stacking and scaling
-    X = np.vstack((positive_features, negatice_features)).astype(np.float64)
+    X = np.vstack((pos_features, neg_features)).astype(np.float64)
     # Defining labels
-    y = np.hstack((np.ones(len(positive_features)), np.zeros(len(negatice_features))))
+    pos_labels = np.ones(len(pos_features))
+    neg_labels = np.zeros(len(neg_features))
+    y = np.hstack((pos_labels, neg_labels))
 
-    # Split up data
-    rand_state = np.random.randint(0, 100)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=rand_state)
+    # Splitting the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=np.random.randint(0, 100))
 
     # Scale data based on training set and apply transformation to all data sets (train and test)
     X_scaler = scaler.fit(X_train)
@@ -152,23 +56,28 @@ def fitModel(positive, negative, svc, scaler, params):
     X_train = X_scaler.transform(X_train)
     X_test = X_scaler.transform(X_test)
 
-    # Fitting
+    # Fitting the model
     t1 = datetime.now()
     svc.fit(X_train, y_train)
     t2 = datetime.now()
+    fit_time = (t2 - t1).seconds
 
+    # Get model accuracy based on test data
     accuracy = svc.score(X_test, y_test)
 
-    return (svc, X_scaler, (t2-t1).seconds, accuracy)
+    return svc, X_scaler, accuracy, (extraction_time, fit_time)
 
 
-vehicles = readImages('./data/vehicles', '*.png')
-non_vehicles = readImages('./data/non-vehicles', '*.png')
+vehicles = read_samples('./data/vehicles', '*.png')
+no_vehicles = read_samples('./data/non-vehicles', '*.png')
 
 params = FeatureParameter()
-svc, scaler, fitting_duration, accuracy = fitModel(vehicles, non_vehicles, LinearSVC(), StandardScaler(), params)
-print('Fitting time: {} sec, Model accuracy: {}'.format(fitting_duration, accuracy))
+clf_model, scaler, model_accuracy, times = fit_model(vehicles, no_vehicles, LinearSVC(), StandardScaler(), params)
 
-model_file = "model.p"
+print('Feature extraction time: {} seconds'.format(times[0]))
+print('Fitting time: {} seconds'.format(times[1]))
+print('Model accuracy: {}'.format(model_accuracy))
+
+model_file = "./data/model.p"
 print('Saving classifier model to file', model_file)
-save_model((svc, scaler), model_file)
+save_model((clf_model, scaler), model_file)
